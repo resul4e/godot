@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2021 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2021 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md)    */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -36,9 +36,16 @@ void BitMap::create(const Size2 &p_size) {
 	ERR_FAIL_COND(p_size.width < 1);
 	ERR_FAIL_COND(p_size.height < 1);
 
-	width = p_size.width;
-	height = p_size.height;
-	bitmask.resize(((width * height) / 8) + 1);
+	int w = static_cast<int>(p_size.width);
+	int h = static_cast<int>(p_size.height);
+	ERR_FAIL_COND(static_cast<int64_t>(w) * static_cast<int64_t>(h) > INT32_MAX);
+
+	Error err = bitmask.resize(((w * h) / 8) + 1);
+	ERR_FAIL_COND(err != Error::OK);
+
+	width = w;
+	height = h;
+
 	zeromem(bitmask.ptrw(), bitmask.size());
 }
 
@@ -634,6 +641,8 @@ Ref<Image> BitMap::convert_to_image() const {
 }
 
 void BitMap::blit(const Vector2 &p_pos, const Ref<BitMap> &p_bitmap) {
+	ERR_FAIL_COND_MSG(p_bitmap.is_null(), "It's not a reference to a valid BitMap object.");
+
 	int x = p_pos.x;
 	int y = p_pos.y;
 	int w = p_bitmap->get_size().width;
@@ -650,7 +659,7 @@ void BitMap::blit(const Vector2 &p_pos, const Ref<BitMap> &p_bitmap) {
 				continue;
 			}
 			if (p_bitmap->get_bit(Vector2(i, j))) {
-				set_bit(Vector2(x, y), true);
+				set_bit(Vector2(px, py), true);
 			}
 		}
 	}

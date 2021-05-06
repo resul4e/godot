@@ -75,6 +75,7 @@
 #include "test_validate_testing.h"
 #include "test_variant.h"
 #include "test_xml_parser.h"
+#include "test_bit_map.h"
 
 #include "modules/modules_tests.gen.h"
 
